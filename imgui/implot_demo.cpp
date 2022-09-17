@@ -2111,7 +2111,7 @@ void Demo_CustomPlottersAndTooltips()  {
     ImGui::SameLine(); ImGui::ColorEdit4("##Bull", &bullCol.x, ImGuiColorEditFlags_NoInputs);
     ImGui::SameLine(); ImGui::ColorEdit4("##Bear", &bearCol.x, ImGuiColorEditFlags_NoInputs);
     ImPlot::GetStyle().UseLocalTime = false;
-	ImPlot::GetStyle().UseISO8601 = true;
+	ImPlot::GetStyle().UseISO8601 = false;
 
     if (ImPlot::BeginPlot("Candlestick Chart", ImVec2(-1,-1))) {
 		ImPlot::SetupAxes(NULL, NULL, 
@@ -2121,7 +2121,9 @@ void Demo_CustomPlottersAndTooltips()  {
 
         ImPlot::SetupAxesLimits(1546300800, 1571961600, 1250, 1600);
         ImPlot::SetupAxisScale(ImAxis_X1, ImPlotScale_Time);
-        ImPlot::SetupAxisLimitsConstraints(ImAxis_X1, 1546300800, 1571961600);
+        // setup x range (min, max), reserve 5 days at the head
+        double xmax = dates[sizeof(dates) / sizeof(double) - 1] + 3600*24*5;
+        ImPlot::SetupAxisLimitsConstraints(ImAxis_X1, 1546300800, xmax);
         ImPlot::SetupAxisZoomConstraints(ImAxis_X1, 60*60*24*14, 1571961600-1546300800);
         ImPlot::SetupAxisFormat(ImAxis_Y1, "%.0f");
         MyImPlot::PlotCandlestick("GOOGL",dates, opens, closes, lows, highs, 218, tooltip, 0.25f, bullCol, bearCol);
@@ -2427,7 +2429,8 @@ void PlotCandlestick(
         if (idx != -1) {
             ImGui::BeginTooltip();
             char buff[32];
-            ImPlot::FormatDate(ImPlotTime::FromDouble(xs[idx]),buff,32,ImPlotDateFmt_DayMoYr,ImPlot::GetStyle().UseISO8601);
+            // format date with ISO8601
+            ImPlot::FormatDate(ImPlotTime::FromDouble(xs[idx]), buff, 32, ImPlotDateFmt_DayMoYr, true); 
             ImGui::Text(u8"日期：%s",  buff);
             ImGui::Text(u8"开盘：%.2f", opens[idx]);
             ImGui::Text(u8"收盘：%.2f", closes[idx]);
