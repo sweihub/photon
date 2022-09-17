@@ -2428,11 +2428,11 @@ void PlotCandlestick(
             ImGui::BeginTooltip();
             char buff[32];
             ImPlot::FormatDate(ImPlotTime::FromDouble(xs[idx]),buff,32,ImPlotDateFmt_DayMoYr,ImPlot::GetStyle().UseISO8601);
-            ImGui::Text(u8"ÈÕÆÚ£º%s",  buff);
-            ImGui::Text(u8"¿ªÅÌ£º$%.2f", opens[idx]);
-            ImGui::Text(u8"ÊÕÅÌ£º$%.2f", closes[idx]);
-            ImGui::Text(u8"×îµÍ£º$%.2f", lows[idx]);
-            ImGui::Text(u8"×î¸ß£º$%.2f", highs[idx]);
+            ImGui::Text(u8"æ—¥æœŸï¼š%s",  buff);
+            ImGui::Text(u8"å¼€ç›˜ï¼š%.2f", opens[idx]);
+            ImGui::Text(u8"æ”¶ç›˜ï¼š%.2f", closes[idx]);
+            ImGui::Text(u8"æœ€ä½Žï¼š%.2f", lows[idx]);
+            ImGui::Text(u8"æœ€é«˜ï¼š%.2f", highs[idx]);
             ImGui::EndTooltip();
         }
     }

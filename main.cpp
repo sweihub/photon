@@ -107,8 +107,14 @@ int main(int, const char**)
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
 
+#ifdef _MSC_VER
 	ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\msyh.ttc", 16.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
 	IM_ASSERT(font != NULL);
+#endif
+#ifdef __APPLE__
+	ImFont* font = io.Fonts->AddFontFromFileTTF("/System/Library/Fonts/PingFang.ttc", 16.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
+	IM_ASSERT(font != NULL);
+#endif
 
     // Our state
     bool show_demo_window = false;

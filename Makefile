@@ -14,17 +14,26 @@
 #CXX = g++
 #CXX = clang++
 
-EXE = example_glfw_opengl3
-IMGUI_DIR = ../..
+EXE = photon 
+IMGUI_DIR = imgui
 SOURCES = main.cpp
-SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
-SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
+SOURCES += $(IMGUI_DIR)/imgui.cpp \
+           $(IMGUI_DIR)/imgui_demo.cpp \
+           $(IMGUI_DIR)/imgui_draw.cpp \
+           $(IMGUI_DIR)/imgui_tables.cpp \
+           $(IMGUI_DIR)/imgui_widgets.cpp \
+           $(IMGUI_DIR)/imgui_impl_glfw.cpp \
+           $(IMGUI_DIR)/imgui_impl_opengl3.cpp \
+           $(IMGUI_DIR)/imgui/implot.cpp \
+           $(IMGUI_DIR)/imgui/implot_demo.cpp \
+           $(IMGUI_DIR)/imgui/implot_items.cpp
+
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS = -lGL
 
-CXXFLAGS = -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
-CXXFLAGS += -g -Wall -Wformat
+CXXFLAGS = -std=c++17 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/
+CXXFLAGS += -g -Wall -Wformat -DGL_SILENCE_DEPRECATION
 LIBS =
 
 ##---------------------------------------------------------------------
@@ -74,9 +83,6 @@ endif
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 %.o:$(IMGUI_DIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-%.o:$(IMGUI_DIR)/backends/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 all: $(EXE)
