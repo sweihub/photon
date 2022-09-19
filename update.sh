@@ -18,6 +18,11 @@ FILES="
 ../imgui/imstb_rectpack.h
 ../imgui/imstb_textedit.h
 ../imgui/imstb_truetype.h
+../implot/implot.cpp
+../implot/implot.h
+../implot/implot_demo.cpp
+../implot/implot_internal.h
+../implot/implot_items.cpp
 "
 for i in $FILES; do 
     cp -v $i imgui/.

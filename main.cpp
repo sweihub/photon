@@ -7,6 +7,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/implot.h"
+#include "candlestick.h"
 #include <stdio.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
@@ -180,7 +181,7 @@ int main(int, const char**)
 		// 4. Show candlestick test window
 		if (show_candlestick_window) {
 			ImGui::Begin("Demo Candlestick", &show_candlestick_window);
-			ImPlot::Demo_CustomPlottersAndTooltips();
+			ShowCandlestick();
 			ImGui::End();
 		}
 

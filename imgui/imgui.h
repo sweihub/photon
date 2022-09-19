@@ -42,18 +42,6 @@ Index of this file:
 
 #pragma once
 
-template <typename  ...T>
-void Debug(const char * fmt, T & ...args) {
-#ifdef _MSC_VER
-	char buf[512] = {};
-	_snprintf_s(buf, sizeof(buf) - 1, fmt, args...);
-	OutputDebugString(buf);
-#else
-	printf(fmt, args...);
-#endif
-}
-
-
 // Configuration file with compile-time options (edit imconfig.h or '#define IMGUI_USER_CONFIG "myfilename.h" from your build system')
 #ifdef IMGUI_USER_CONFIG
 #include IMGUI_USER_CONFIG

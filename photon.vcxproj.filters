@@ -43,6 +43,9 @@
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>imgui</Filter>
     </ClInclude>
+    <ClInclude Include="candlestick.h">
+      <Filter>sources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui.cpp">
@@ -76,6 +79,9 @@
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="candlestick.cpp">
       <Filter>sources</Filter>
     </ClCompile>
   </ItemGroup>
