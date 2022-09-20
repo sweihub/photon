@@ -56,8 +56,9 @@ void PlotCandlestick(const char* label_id, const double* xs, const double* opens
 		// fit data if requested
 		if (ImPlot::FitThisFrame()) {
 			for (int i = 0; i < count; ++i) {
-				ImPlot::FitPoint(ImPlotPoint(xs[i], lows[i]));
-				ImPlot::FitPoint(ImPlotPoint(xs[i], highs[i]));
+				const int padding = 10;
+				ImPlot::FitPoint(ImPlotPoint(xs[i], lows[i] - padding));
+				ImPlot::FitPoint(ImPlotPoint(xs[i], highs[i] + padding));
 			}
 		}
 		// render data

@@ -16,7 +16,7 @@
 
 EXE = photon 
 IMGUI_DIR = imgui
-SOURCES = main.cpp
+SOURCES = main_glfw.cpp boot.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp \
            $(IMGUI_DIR)/imgui_demo.cpp \
            $(IMGUI_DIR)/imgui_draw.cpp \
