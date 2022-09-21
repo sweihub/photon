@@ -3,4 +3,4 @@
 #include "imgui/imgui.h"
 #include "imgui/implot.h"
 
-int boot();
+int on_frame();

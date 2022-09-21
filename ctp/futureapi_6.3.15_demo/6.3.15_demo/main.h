@@ -33,7 +33,7 @@ TThostFtdcPasswordType g_chPassword;
 /// 交易所代码
 TThostFtdcExchangeIDType g_chExchangeID;
 ///合约代码
-TThostFtdcInstrumentIDType	g_chInstrumentID;
+TThostFtdcInstrumentIDType	g_chInstrumentID = "rb2301";
 ///投资者代码
 TThostFtdcInvestorIDType g_chInvestorID;
 ///预埋撤单编号

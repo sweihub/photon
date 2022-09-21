@@ -7,7 +7,7 @@
 #include "imgui/imgui_impl_dx11.h"
 #include <d3d11.h>
 #include <tchar.h>
-#include "boot.h"
+#include "frame.h"
 
 // Data
 static ID3D11Device*            g_pd3dDevice = NULL;
@@ -122,7 +122,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
         ImGui::NewFrame();
 
 		// frame loop
-		if (boot() != 0)
+		if (on_frame() != 0)
 			break;
 
         // Rendering

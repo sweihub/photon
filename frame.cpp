@@ -1,6 +1,7 @@
 #include "candlestick.h"
 #include "json.hpp"
-#include "boot.h"
+#include "frame.h"
+#include "ctp.h"
 
 // Our state
 bool show_demo_window = true;
@@ -9,8 +10,7 @@ bool show_candlestick_window = false;
 bool show_implot_demo = false;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-// frame loop
-int boot() {
+int on_frame() {
 
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	if (show_demo_window)

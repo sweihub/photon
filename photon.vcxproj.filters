@@ -43,7 +43,10 @@
     <ClInclude Include="candlestick.h">
       <Filter>sources</Filter>
     </ClInclude>
-    <ClInclude Include="boot.h">
+    <ClInclude Include="frame.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="ctp.h">
       <Filter>sources</Filter>
     </ClInclude>
   </ItemGroup>
@@ -81,13 +84,13 @@
     <ClCompile Include="imgui\imgui_impl_win32.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="boot.cpp">
-      <Filter>sources</Filter>
-    </ClCompile>
     <ClCompile Include="candlestick.cpp">
       <Filter>sources</Filter>
     </ClCompile>
     <ClCompile Include="main_win32.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="frame.cpp">
       <Filter>sources</Filter>
     </ClCompile>
   </ItemGroup>
