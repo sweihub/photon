@@ -49,6 +49,9 @@
     <ClInclude Include="ctp.h">
       <Filter>sources</Filter>
     </ClInclude>
+    <ClInclude Include="inireader.h">
+      <Filter>sources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui.cpp">
@@ -58,9 +61,6 @@
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui_draw.cpp">
-      <Filter>imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui\imgui_impl_opengl3.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui_tables.cpp">
@@ -93,10 +93,18 @@
     <ClCompile Include="frame.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="ctp.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="imgui\imgui.natvis">
       <Filter>imgui</Filter>
     </Natvis>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="config.ini">
+      <Filter>sources</Filter>
+    </None>
   </ItemGroup>
 </Project>

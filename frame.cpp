@@ -2,66 +2,124 @@
 #include "json.hpp"
 #include "frame.h"
 #include "ctp.h"
+#include "inireader.h"
 
 // Our state
-bool show_demo_window = true;
-bool show_another_window = false;
+bool show_demo_window = false;
+bool show_demo_implot = false;
+bool show_test_window = false;
 bool show_candlestick_window = false;
-bool show_implot_demo = false;
-ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-int on_frame() {
+static void ShowAppMainMenuBar()
+{
+	static bool openpopuptemp = false;
+	static char * focus_window = nullptr;
 
-	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-	if (show_demo_window)
+	ImGui::BeginMainMenuBar();
+
+	if (ImGui::BeginMenu("策略"))
+	{
+		if (ImGui::MenuItem(u8"策略")) {
+			openpopuptemp = true;
+		}
+
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::BeginMenu(u8"系统"))
+	{
+		if (ImGui::MenuItem(u8"设置", "CTRL+Z")) {
+		}
+
+		if (ImGui::MenuItem(u8"日志", "CTRL+Y", false, false)) {
+		}  // Disabled item
+
+		ImGui::Separator();
+
+		if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+		if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+		if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::BeginMenu("交易")) {
+		ImGui::MenuItem("账户");
+		ImGui::MenuItem("行情");
+		if (ImGui::BeginMenu("交易")) {
+			ImGui::MenuItem("账户");
+			ImGui::MenuItem("账户");
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenu();
+	}
+
+	// Demo
+	if (ImGui::BeginMenu("窗口")) {
+		if (ImGui::MenuItem("Demo Window")) {
+			show_demo_window = true;
+			focus_window = "Dear ImGui Demo";
+		}
+		if (ImGui::MenuItem("Demo Implot")) {
+			show_demo_implot = true;	
+			focus_window = "ImPlot Demo";
+		}
+		if (ImGui::MenuItem("Demo Candlestick")) {
+			show_candlestick_window = true;
+			focus_window = "Candlestick";
+		}
+		if (ImGui::MenuItem("Test")) {
+			show_test_window = true;
+		}
+		ImGui::EndMenu();
+	}
+
+	ImGui::EndMainMenuBar();
+
+	if (show_demo_window) 
 		ImGui::ShowDemoWindow(&show_demo_window);
 
-	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-	{
-		static float f = 0.0f;
-		static int counter = 0;
-
-		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-		ImGui::Checkbox("Another Window", &show_another_window);
-		ImGui::Checkbox("Demo Implot", &show_implot_demo);
-		ImGui::Checkbox("Demo Candlestick", &show_candlestick_window);
-
-		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-			counter++;
-		ImGui::SameLine();
-		ImGui::Text("counter = %d", counter);
-
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		ImGui::End();
-	}
-
-	// 3. Show another simple window.
-	if (show_another_window)
-	{
-		ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-		ImGui::Text("Hello from another window!");
-		if (ImGui::Button("Close Me"))
-			show_another_window = false;
-		ImGui::End();
-	}
-
-	// 4. Show candlestick test window
+	if (show_demo_implot)
+		ImPlot::ShowDemoWindow(&show_demo_implot);
+	
 	if (show_candlestick_window) {
-		ImGui::Begin("Demo Candlestick", &show_candlestick_window);
+		ImGui::Begin("Candlestick", &show_candlestick_window);
 		ShowCandlestick();
 		ImGui::End();
 	}
 
-	// 5. Show implot demo
-	if (show_implot_demo) {
-		ImPlot::ShowDemoWindow(&show_implot_demo);
+	if (show_test_window) {
+		ImGui::Begin("test###1");
+		ImGui::Text("text 1");
+		ImGui::End();
+
+		ImGui::Begin("test####2");
+		ImGui::Text("text 2");
+		ImGui::End();
 	}
+
+	// Mark to show the modal dialog
+	if (openpopuptemp) {
+		ImGui::OpenPopup("Exit this?");
+		openpopuptemp = false;
+	}
+	
+	// Show the modal dialog if marked as show
+	if (ImGui::BeginPopupModal("Exit this?")) {
+		ImGui::Text("Hello from Stacked The Second!");
+		if (ImGui::Button("Close"))
+			ImGui::CloseCurrentPopup();
+		ImGui::EndPopup();
+	}
+
+	if (focus_window) {
+		ImGui::SetWindowFocus(focus_window);
+		focus_window = nullptr;
+	}
+}
+
+int on_frame() {
+		
+	ShowAppMainMenuBar();
 
 	return (0);
 }
