@@ -94,11 +94,11 @@
     <ClCompile Include="ctp.cpp">
       <Filter>sources</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_combowithfilter.cpp">
-      <Filter>imgui</Filter>
-    </ClCompile>
     <ClCompile Include="app.cpp">
       <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_combo_autoselect.cpp">
+      <Filter>imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

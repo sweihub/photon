@@ -71,14 +71,9 @@ void ShowAddAccountWindow(UI *ui)
 	if (ImGui::Begin(ui->name.c_str(), &ui->open)) {
 		float offset = ImGui::GetFontSize() * 4.5f;
 		ImGui::Text("期货公司");
-		ImGui::SameLine(offset);
-		ImGui::Combo("##broker", &n, "上海中期\0宏源期货\0\0");
+		ImGui::SameLine(offset);		
 
-		// Chinese input fix
-		// https://github.com/ocornut/imgui/issues/1807#issuecomment-394383995
-		ImGui::ComboWithFilter("##comboWithFilter", &n, items);
-
-		const char* hints[] = {
+		std::vector<std::string> hints = {
 				"AnimGraphNode_CopyBone",
 				"ce skipaa",
 				"ce skipscreen",
@@ -105,18 +100,16 @@ void ShowAddAccountWindow(UI *ui)
 				"return",
 				"slomo 10",
 				"SVisualLoggerLogsList.h",
+				"上海中期",
+				"宏源期货",
 				"The Black Knight",
 		};
 		static int comboSelection = 0;
 		static char buf[128] = { 0x00 };
-		static char sel[128] = { 0x00 };
-		struct Funcs { static bool ItemGetter(void* data, int n, const char** out_str) { *out_str = ((const char**)data)[n]; return true; } };
-		if (ImGui::ComboAutoSelect("my combofilter", buf, IM_ARRAYSIZE(buf), &comboSelection, &Funcs::ItemGetter, hints, IM_ARRAYSIZE(hints), NULL)) {
+		if (ImGui::ComboAutoSelect("my combofilter", buf, sizeof(buf), &comboSelection, hints, NULL)) {		
 			//...picking has occurred
-			sprintf(sel, "%s", buf);
 		}
-		ImGui::Text("Selection: %s", sel);
-
+		ImGui::Text("Selection: %s, id = %d", buf, comboSelection);		
 				
 		ImGui::Text("帐号");
 		ImGui::SameLine(offset);

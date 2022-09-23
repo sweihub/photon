@@ -204,7 +204,7 @@ copy ctp\brokers.json "$(OutDir)\config"</Command>
     <ClCompile Include="app.cpp" />
     <ClCompile Include="candlestick.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
-    <ClCompile Include="imgui\imgui_combowithfilter.cpp" />
+    <ClCompile Include="imgui\imgui_combo_autoselect.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
     <ClCompile Include="imgui\imgui_impl_dx11.cpp" />
