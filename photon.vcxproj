@@ -184,10 +184,11 @@ copy ctp\brokers.json "$(OutDir)\config"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ctp.h" />
-    <ClInclude Include="frame.h" />
+    <ClInclude Include="app.h" />
     <ClInclude Include="candlestick.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_combowithfilter.h" />
     <ClInclude Include="imgui\imgui_impl_dx11.h" />
     <ClInclude Include="imgui\imgui_impl_win32.h" />
     <ClInclude Include="imgui\imgui_internal.h" />
@@ -200,9 +201,10 @@ copy ctp\brokers.json "$(OutDir)\config"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ctp.cpp" />
-    <ClCompile Include="frame.cpp" />
+    <ClCompile Include="app.cpp" />
     <ClCompile Include="candlestick.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_combowithfilter.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
     <ClCompile Include="imgui\imgui_impl_dx11.cpp" />

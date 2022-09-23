@@ -7,7 +7,7 @@
 #include "imgui/imgui_impl_dx11.h"
 #include <d3d11.h>
 #include <tchar.h>
-#include "frame.h"
+#include "app.h"
 
 // Data
 static ID3D11Device*            g_pd3dDevice = NULL;
@@ -105,6 +105,8 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
 	
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+	on_start();
+
     // Main loop
     bool done = false;
     while (!done)
@@ -128,8 +130,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
         ImGui::NewFrame();
 
 		// frame loop
-		if (on_frame() != 0)
-			break;
+		on_frame();
 
         // Rendering
         ImGui::Render();
@@ -148,6 +149,8 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
         g_pSwapChain->Present(1, 0); // Present with vsync
         //g_pSwapChain->Present(0, 0); // Present without vsync
     }
+
+	on_stop();
 
     // Cleanup
     ImGui_ImplDX11_Shutdown();
@@ -258,6 +261,26 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             ::SetWindowPos(hWnd, NULL, suggested_rect->left, suggested_rect->top, suggested_rect->right - suggested_rect->left, suggested_rect->bottom - suggested_rect->top, SWP_NOZORDER | SWP_NOACTIVATE);
         }
         break;
+	case WM_IME_CHAR:
+	{
+		auto& io = ImGui::GetIO();
+		DWORD wChar = wParam;
+		if (wChar <= 127)
+		{
+			io.AddInputCharacter(wChar);
+		}
+		else
+		{
+			// swap lower and upper part.
+			BYTE low = (BYTE)(wChar & 0x00FF);
+			BYTE high = (BYTE)((wChar & 0xFF00) >> 8);
+			wChar = MAKEWORD(high, low);
+			wchar_t ch[6];
+			MultiByteToWideChar(CP_OEMCP, 0, (LPCSTR)&wChar, 4, ch, 3);
+			io.AddInputCharacter(ch[0]);
+		}
+		return 0;
+	}
     }
     return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }

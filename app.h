@@ -3,4 +3,6 @@
 #include "imgui/imgui.h"
 #include "imgui/implot.h"
 
-int on_frame();
+void on_start();
+void on_frame();
+void on_stop();

@@ -43,13 +43,14 @@
     <ClInclude Include="candlestick.h">
       <Filter>sources</Filter>
     </ClInclude>
-    <ClInclude Include="frame.h">
-      <Filter>sources</Filter>
-    </ClInclude>
     <ClInclude Include="ctp.h">
       <Filter>sources</Filter>
     </ClInclude>
     <ClInclude Include="inireader.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_combowithfilter.h" />
+    <ClInclude Include="app.h">
       <Filter>sources</Filter>
     </ClInclude>
   </ItemGroup>
@@ -90,10 +91,13 @@
     <ClCompile Include="main_win32.cpp">
       <Filter>sources</Filter>
     </ClCompile>
-    <ClCompile Include="frame.cpp">
+    <ClCompile Include="ctp.cpp">
       <Filter>sources</Filter>
     </ClCompile>
-    <ClCompile Include="ctp.cpp">
+    <ClCompile Include="imgui\imgui_combowithfilter.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="app.cpp">
       <Filter>sources</Filter>
     </ClCompile>
   </ItemGroup>
