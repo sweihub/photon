@@ -1,13 +1,9 @@
 #include "imgui_combo_autoselect.h"
 
-
-// fuzzy-completion combobox code by kovewnikov, from: https://github.com/ocornut/imgui/issues/1658
-// corrections and bug fixes by Marcin "Slajerek" Skoczylas
-// code cleanup, signature as per old API Combo() with item_getter callback
-
 /*
- //  Demo:
-	const char* hints[] = {
+ // Demo:
+	static ImGui::ComboAutoSelectData data = {{
+					"",
 					"AnimGraphNode_CopyBone",
 					"ce skipaa",
 					"ce skipscreen",
@@ -35,23 +31,46 @@
 					"slomo 10",
 					"SVisualLoggerLogsList.h",
 					"The Black Knight",
-	};
-	static int comboSelection = 0;
-	static char buf[128] = { 0x00 };
-	static char sel[128] = { 0x00 };
-	struct Funcs { static bool ItemGetter(void* data, int n, const char** out_str) { *out_str = ((const char**)data)[n]; return true; } };
-	if (ImGui::ComboAutoSelect("my combofilter", buf, IM_ARRAYSIZE(buf), &comboSelection, &Funcs::ItemGetter, hints, IM_ARRAYSIZE(hints), NULL)) {
-		//...picking has occurred
-		sprintf(sel, "%s", buf);
+	}};	
+	if (ImGui::ComboAutoSelect("my combofilter", data)) {
+		// selection occurred
 	}
-	ImGui::Text("Selection: %s", sel);
+	ImGui::Text("Selection: %s, index = %d", data.input, data.index);
 */
 
+#ifdef _MSC_VER
+#include <Shlwapi.h>
+#define istrstr StrStrIA
+#pragma comment(lib, "Shlwapi.lib")
+#else
+#define istrstr strcasestr
+#endif
+
 namespace ImGui {
-	bool ComboAutoSelectOriginal(const char* label, char* buffer, int bufferlen, int* current_item, bool(*items_getter)(void*, int, const char**), void* data, int items_count, ImGuiComboFlags flags);
+	bool ComboAutoSelectComplex(const char* label, char* buffer, int bufferlen, int* current_item, bool(*items_getter)(void*, int, const char**), void* data, int items_count, ImGuiComboFlags flags);
 }
 
-bool ImGui::ComboAutoSelectOriginal(const char* label, char* buffer, int bufferlen, int* current_item, bool(*items_getter)(void*, int, const char**), void* data, int items_count, ImGuiComboFlags flags)
+static int fuzzy_search(const char* needle, void* data) {
+	auto & items = *(std::vector<std::string> *)data;
+	for (int i = 0; i < (int)items.size(); i++) {
+		auto haystack = items[i].c_str();
+		// empty
+		if (!needle[0]) {
+			if (!haystack[0])
+				return i;
+			continue;
+		}
+		// exact match
+		if (strstr(haystack, needle))
+			return i;
+		// fuzzy match
+		if (istrstr(haystack, needle))
+			return i;
+	}
+	return -1;
+}
+
+bool ImGui::ComboAutoSelectComplex(const char* label, char* input, int inputlen, int* current_item, bool(*items_getter)(void*, int, const char**), void* data, int items_count, ImGuiComboFlags flags)
 {
 	// Always consume the SetNextWindowSizeConstraint() call in our early return paths
 	ImGuiContext& g = *GImGui;
@@ -66,7 +85,7 @@ bool ImGui::ComboAutoSelectOriginal(const char* label, char* buffer, int bufferl
 	bool popupIsAlreadyOpened = IsPopupOpen(popupId, 0); //ImGuiPopupFlags_AnyPopupLevel);
 	const char* sActiveidxValue1 = NULL;
 	items_getter(data, *current_item, &sActiveidxValue1);
-	bool popupNeedsToBeOpened = (buffer[0] != 0) && strcmp(buffer, sActiveidxValue1);
+	bool popupNeedsToBeOpened = (input[0] != 0) && (sActiveidxValue1 && strcmp(input, sActiveidxValue1));
 	bool popupJustOpened = false;
 
 	IM_ASSERT((flags & (ImGuiComboFlags_NoArrowButton | ImGuiComboFlags_NoPreview)) != (ImGuiComboFlags_NoArrowButton | ImGuiComboFlags_NoPreview)); // Can't use both flags together
@@ -103,11 +122,11 @@ bool ImGui::ComboAutoSelectOriginal(const char* label, char* buffer, int bufferl
 
 	if (!popupIsAlreadyOpened) {
 		RenderFrameBorder(frame_bb.Min, frame_bb.Max, style.FrameRounding);
-		if (buffer != NULL && !(flags & ImGuiComboFlags_NoPreview)) {
+		if (input != NULL && !(flags & ImGuiComboFlags_NoPreview)) {
 			RenderTextClipped(
 				ImVec2(frame_bb.Min.x + style.FramePadding.x, frame_bb.Min.y + style.FramePadding.y), 
 				ImVec2(value_x2, frame_bb.Max.y), 
-				buffer, 
+				input, 
 				NULL,
 				NULL, 
 				ImVec2(0.0f, 0.0f)
@@ -169,13 +188,8 @@ bool ImGui::ComboAutoSelectOriginal(const char* label, char* buffer, int bufferl
 		SetKeyboardFocusHere(0);
 	}
 
-	bool done = InputTextEx("##inputText", NULL, buffer, bufferlen, ImVec2(0, 0), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue, NULL, NULL);
+	bool done = InputTextEx("##inputText", NULL, input, inputlen, ImVec2(0, 0), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue, NULL, NULL);
 	PopItemWidth();
-
-	if (*current_item < 0) {
-		IM_ASSERT(false); //Undefined behaviour
-		return false;
-	}
 
 	if (!ret) {
 		EndChild();
@@ -188,55 +202,9 @@ bool ImGui::ComboAutoSelectOriginal(const char* label, char* buffer, int bufferl
 	ImGuiWindowFlags window_flags2 = ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus; //0; //ImGuiWindowFlags_HorizontalScrollbar
 	BeginChild("ChildL", ImVec2(GetContentRegionAvail().x, GetContentRegionAvail().y), false, window_flags2);
 
-	struct fuzzy {
-		static int score(const char* str1, const char* str2) {
-			int score = 0, consecutive = 0, maxerrors = 0;
-			while (*str1 && *str2) {
-				int is_leading = (*str1 & 64) && !(str1[1] & 64);
-				if ((*str1 & ~32) == (*str2 & ~32)) {
-					int had_separator = (str1[-1] <= 32);
-					int x = had_separator || is_leading ? 10 : consecutive * 5;
-					consecutive = 1;
-					score += x;
-					++str2;
-				}
-				else {
-					int x = -1, y = is_leading * -3;
-					consecutive = 0;
-					score += x;
-					maxerrors += y;
-				}
-				++str1;
-			}
-			return score + (maxerrors < -9 ? -9 : maxerrors);
-		}
-		//static int search(const char *str, int num, const char *words[]) {
-		static int search(const char* str, bool(*items_getter)(void*, int, const char**), void* data, int items_count) {
-			int scoremax = 0;
-			int best = -1;
-			for (int i = 0; i < items_count; ++i) {
-				const char* word_i = NULL;
-				items_getter(data, i, &word_i);
-				int score = fuzzy::score(word_i, str);
-				int record = (score >= scoremax);
-				int draw = (score == scoremax);
-				if (record) {
-					scoremax = score;
-					if (!draw) best = i;
-					else {
-						const char* word_best = NULL;
-						items_getter(data, best, &word_best);
-						best = best >= 0 && strlen(word_best) < strlen(word_i) ? best : i;
-					}
-				}
-			}
-			return best;
-		}
-	};
-
 	bool selectionChanged = false;
-	if (buffer[0] != '\0') {
-		int new_idx = fuzzy::search(buffer, items_getter, data, items_count);
+	if (input[0] != '\0') {
+		int new_idx = fuzzy_search(input, data);
 		int idx = new_idx >= 0 ? new_idx : *current_item;
 		selectionChanged = *current_item != idx;
 		*current_item = idx;
@@ -254,12 +222,26 @@ bool ImGui::ComboAutoSelectOriginal(const char* label, char* buffer, int bufferl
 		}
 	}
 	if (IsKeyPressed(GetKeyIndex(ImGuiKey_DownArrow))) {
-		if (*current_item < items_count - 1)
+		if (*current_item >= -1 && *current_item < items_count - 1)
 		{
 			*current_item += 1;
 			arrowScroll = true;
 			SetWindowFocus();
 		}
+	}
+
+	// select the first match
+	if (IsKeyPressed(GetKeyIndex(ImGuiKey_Enter))) {	
+		arrowScroll = true;
+		*current_item = fuzzy_search(input, data);
+		if (*current_item < 0)
+			*input = 0;
+		CloseCurrentPopup();
+	}
+
+	if (IsKeyPressed(GetKeyIndex(ImGuiKey_Backspace))) {		
+		*current_item = fuzzy_search(input, data);
+		selectionChanged = true;
 	}
 
 	if (done && !arrowScroll) {
@@ -281,27 +263,30 @@ bool ImGui::ComboAutoSelectOriginal(const char* label, char* buffer, int bufferl
 
 		const char* select_value = NULL;
 		items_getter(data, n, &select_value);
-		if (Selectable(select_value, is_selected)) {
+
+		// allow empty item
+		char item_id[128];
+		ImFormatString(item_id, sizeof(item_id), "%s##item_%02d", select_value, n);
+		if (Selectable(item_id, is_selected)) {
 			selectionChanged = *current_item != n;
 			*current_item = n;
-			strncpy(buffer, select_value, bufferlen);
+			strncpy(input, select_value, inputlen);
 			CloseCurrentPopup();
-
 			done2 = true;
 		}
 	}
 
-	if (arrowScroll) {
+	if (arrowScroll && *current_item > -1) {
 		const char* sActiveidxValue2 = NULL;
 		items_getter(data, *current_item, &sActiveidxValue2);
-		strncpy(buffer, sActiveidxValue2, bufferlen);
+		strncpy(input, sActiveidxValue2, inputlen);
 		ImGuiWindow* wnd = FindWindowByName(name);
 		const ImGuiID id = wnd->GetID("##inputText");
 		ImGuiInputTextState* state = GetInputTextState(id);
 
 		const char* buf_end = NULL;
-		state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, state->TextW.Size, buffer, NULL, &buf_end);
-		state->CurLenA = (int)(buf_end - buffer);
+		state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, state->TextW.Size, input, NULL, &buf_end);
+		state->CurLenA = (int)(buf_end - input);
 		state->CursorClamp();
 	}
 
@@ -310,7 +295,7 @@ bool ImGui::ComboAutoSelectOriginal(const char* label, char* buffer, int bufferl
 
 	const char* sActiveidxValue3 = NULL;
 	items_getter(data, *current_item, &sActiveidxValue3);
-	bool ret1 = (selectionChanged && !strcmp(sActiveidxValue3, buffer));
+	bool ret1 = (selectionChanged && (sActiveidxValue3 && !strcmp(sActiveidxValue3, input)));
 
 	bool widgetRet = done || done2 || ret1;
 
@@ -318,7 +303,6 @@ bool ImGui::ComboAutoSelectOriginal(const char* label, char* buffer, int bufferl
 }
 
 static bool vector_item_getter(void* data, int n, const char** out_str) { 
-	//*out_str = ((const char**)data)[n]; 
 	auto & items = *(std::vector<std::string> *)data;
 	if (n >= 0 && n < (int)items.size()) {
 		*out_str = items[n].c_str();
@@ -327,7 +311,7 @@ static bool vector_item_getter(void* data, int n, const char** out_str) {
 	return false;
 }
 
-bool ImGui::ComboAutoSelect(const char* label, char* buffer, int bufferlen, int* current_item, const std::vector<std::string> & items, ImGuiComboFlags flags)
+bool ImGui::ComboAutoSelect(const char* label, ImGui::ComboAutoSelectData & data, ImGuiComboFlags flags)
 {
-	return ComboAutoSelectOriginal(label, buffer, bufferlen, current_item, vector_item_getter, (void *)&items, (int)items.size(), flags);
+	return ComboAutoSelectComplex(label, data.input, sizeof(data.input) - 1, &data.index, vector_item_getter, (void *)&data.items, (int)data.items.size(), flags);
 }

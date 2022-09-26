@@ -3,7 +3,6 @@
 #include "app.h"
 #include "ctp.h"
 #include "inireader.h"
-#include "imgui/imgui_combowithfilter.h"
 #include "imgui/imgui_combo_autoselect.h"
 
 // Our state
@@ -65,15 +64,13 @@ void ShowAddAccountWindow(UI *ui)
 	static char authcode[128] = {};
 	static char appid[128] = {};
 	static char broker[64] = {};
-	static int n = 0;
-	static std::vector<std::string> items = { "Apple", "Orange", "Cherry", "上海中期"};
 
 	if (ImGui::Begin(ui->name.c_str(), &ui->open)) {
 		float offset = ImGui::GetFontSize() * 4.5f;
 		ImGui::Text("期货公司");
-		ImGui::SameLine(offset);		
+		ImGui::SameLine(offset);	
 
-		std::vector<std::string> hints = {
+		static ImGui::ComboAutoSelectData data = { {
 				"AnimGraphNode_CopyBone",
 				"ce skipaa",
 				"ce skipscreen",
@@ -101,15 +98,18 @@ void ShowAddAccountWindow(UI *ui)
 				"slomo 10",
 				"SVisualLoggerLogsList.h",
 				"上海中期",
+				"上海中华",
 				"宏源期货",
 				"The Black Knight",
-		};
-		static int comboSelection = 0;
-		static char buf[128] = { 0x00 };
-		if (ImGui::ComboAutoSelect("my combofilter", buf, sizeof(buf), &comboSelection, hints, NULL)) {		
+				"",
+				"  ",
+				"empty string above"
+			} };
+		
+		if (ImGui::ComboAutoSelect("my combofilter", data)) {		
 			//...picking has occurred
 		}
-		ImGui::Text("Selection: %s, id = %d", buf, comboSelection);		
+		ImGui::Text("Selection: %s, index = %d", data.input, data.index);
 				
 		ImGui::Text("帐号");
 		ImGui::SameLine(offset);
